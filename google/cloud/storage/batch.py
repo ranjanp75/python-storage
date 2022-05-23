@@ -147,9 +147,10 @@ class Batch(Connection):
         )
         self._requests = []
         self._target_objects = []
+        self._responses = []
 
     def _do_request(
-        self, method, url, headers, data, target_object, timeout=_DEFAULT_TIMEOUT
+            self, method, url, headers, data, target_object, timeout=_DEFAULT_TIMEOUT
     ):
         """Override Connection:  defer actual HTTP request.
 
@@ -271,8 +272,13 @@ class Batch(Connection):
             raise exceptions.from_http_response(response)
 
         responses = list(_unpack_batch_response(response))
-        self._finish_futures(responses)
+        self._responses = responses
+        # self._finish_futures(responses)
         return responses
+
+    @property
+    def responses(self):
+        return self._responses
 
     def current(self):
         """Return the topmost batch, or None."""
